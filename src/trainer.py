@@ -80,19 +80,14 @@ class Trainer():
             torch.zeros(1, len(self.loader_test), len(self.scale))
         )
         self.model.eval()
-        print('model')
 
         timer_test = utility.timer()
         if self.args.save_results: self.ckp.begin_background()
         for idx_data, d in enumerate(self.loader_test):
-            print('idx_data: ', idx_data)
             for idx_scale, scale in enumerate(self.scale):
                 d.dataset.set_scale(idx_scale)
-                print('idx_scale: ', idx_scale)
                 print(d)
                 for lr, hr, filename in tqdm(d, ncols=80):
-                    print('------------------')
-                    print('lr hr')
                     lr, hr = self.prepare(lr, hr)
                     sr = self.model(lr, idx_scale)
                     sr = utility.quantize(sr, self.args.rgb_range)
@@ -135,7 +130,6 @@ class Trainer():
         torch.set_grad_enabled(True)
 
     def prepare(self, *args):
-        print('prepare')
         if self.args.cpu:
             device = torch.device('cpu')
         else:
@@ -153,7 +147,6 @@ class Trainer():
 
     def terminate(self):
         if self.args.test_only:
-            print('here')
             self.test()
             return True
         else:

@@ -9,8 +9,8 @@ parser.add_argument('--template', default='.',
                     help='You can set various templates in option.py')
 
 # Hardware specifications
-# parser.add_argument('--n_threads', type=int, default=1,
-#                     help='number of threads for data loading')
+parser.add_argument('--n_threads', type=int, default=8,
+                    help='number of threads for data loading')
 parser.add_argument('--cpu', action='store_true',
                     help='use cpu only')
 parser.add_argument('--n_GPUs', type=int, default=1,
