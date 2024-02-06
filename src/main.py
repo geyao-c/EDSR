@@ -7,7 +7,7 @@ import loss
 from option import args
 from trainer import Trainer
 import sys
-sys.path.append('/home/lenovo/code/EDSR/src')
+sys.path.append('')
 
 torch.manual_seed(args.seed)
 checkpoint = utility.checkpoint(args)
