@@ -47,6 +47,6 @@ class Data:
                     batch_size=1,
                     shuffle=False,
                     pin_memory=not args.cpu,
-                    # num_workers=args.n_threads,
+                    num_workers=args.n_threads,
                 )
             )

@@ -1,11 +1,10 @@
 import os
-# import sys
-
-# sys.path.append('/Users/chenjie/code/EDSR-PyTorch/src')
-# print(os.environ.get('PYTHONPATH'))
 
 from data import common
 from data import srdata
+
+# import common
+# import srdata
 
 import numpy as np
 

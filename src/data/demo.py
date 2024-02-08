@@ -1,7 +1,5 @@
 import os
-import sys
 
-sys.path.append('/home/lenovo/code/EDSR/src/data/')
 from data import common
 
 import numpy as np
