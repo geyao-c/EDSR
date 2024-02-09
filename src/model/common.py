@@ -84,6 +84,7 @@ class ECBResBlock(nn.Module):
 
         return res
 
+
 class Upsampler(nn.Sequential):
     def __init__(self, conv, scale, n_feats, bn=False, act=False, bias=True):
 
