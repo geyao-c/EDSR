@@ -21,7 +21,7 @@ class Trainer():
         self.optimizer = utility.make_optimizer(args, self.model)
 
         if self.args.load != '':
-            print('ckp.dir: {}, len(ckp.log: {}'.format(ckp.dir, ckp.log))
+            print('ckp.dir: {}, len(ckp.log: {}'.format(ckp.dir, len(ckp.log)))
             self.optimizer.load(ckp.dir, epoch=len(ckp.log))
 
         self.error_last = 1e8
