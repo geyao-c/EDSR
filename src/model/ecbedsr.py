@@ -36,7 +36,8 @@ class ECB_EDSR(nn.Module):
 
         # define head module
         # m_head = [conv(args.n_colors, n_feats, kernel_size)]
-        m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt)]
+        m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear')]
+        # m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt)]
 
         # define body module
         m_body = [
