@@ -149,7 +149,7 @@ class SeqConv3x3(nn.Module):
 
 
 class ECB(nn.Module):
-    def __init__(self, inp_planes, out_planes, depth_multiplier, act_type='prelu', with_idt = False):
+    def __init__(self, inp_planes, out_planes, depth_multiplier, act_type='prelu', with_idt=False):
         super(ECB, self).__init__()
 
         self.depth_multiplier = depth_multiplier

@@ -67,6 +67,8 @@ parser.add_argument('--dilation', action='store_true',
 parser.add_argument('--precision', type=str, default='single',
                     choices=('single', 'half'),
                     help='FP precision for test (single | half)')
+parser.add_argument('--with_idt', default=False,
+                    help='ECB block residual')
 
 # Option for Residual dense network (RDN)
 parser.add_argument('--G0', type=int, default=64,

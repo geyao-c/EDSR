@@ -63,13 +63,13 @@ class ResBlock(nn.Module):
 class ECBResBlock(nn.Module):
     def __init__(
         self, conv, n_feats, kernel_size,
-        bias=True, bn=False, act=nn.ReLU(True), res_scale=1):
+        bias=True, bn=False, act=nn.ReLU(True), res_scale=1, with_idt=False):
 
         super(ECBResBlock, self).__init__()
         m = []
         for i in range(2):
             # m.append(conv(n_feats, n_feats, kernel_size, bias=bias))
-            m.append(ECB(n_feats, n_feats, depth_multiplier=2.0, act_type='linear'))
+            m.append(ECB(n_feats, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt))
             if bn:
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
@@ -115,13 +115,13 @@ class Upsampler(nn.Sequential):
         super(Upsampler, self).__init__(*m)
 
 class ECBUpsampler(nn.Sequential):
-    def __init__(self, conv, scale, n_feats, bn=False, act=False, bias=True):
+    def __init__(self, conv, scale, n_feats, bn=False, act=False, bias=True, with_idt=False):
 
         m = []
         if (scale & (scale - 1)) == 0:    # Is scale = 2^n?
             for _ in range(int(math.log(scale, 2))):
                 # m.append(conv(n_feats, 4 * n_feats, 3, bias))
-                m.append(ECB(n_feats, 4 * n_feats, depth_multiplier=2.0, act_type='linear'))
+                m.append(ECB(n_feats, 4 * n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt))
                 m.append(nn.PixelShuffle(2))
                 if bn:
                     m.append(nn.BatchNorm2d(n_feats))
@@ -132,7 +132,7 @@ class ECBUpsampler(nn.Sequential):
 
         elif scale == 3:
             # m.append(conv(n_feats, 9 * n_feats, 3, bias))
-            m.append(ECB(n_feats, 9 * n_feats, depth_multiplier=2.0, act_type='linear'))
+            m.append(ECB(n_feats, 9 * n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt))
             m.append(nn.PixelShuffle(3))
             if bn:
                 m.append(nn.BatchNorm2d(n_feats))
