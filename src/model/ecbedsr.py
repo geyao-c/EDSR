@@ -54,8 +54,8 @@ class ECB_EDSR(nn.Module):
         m_tail = [
             # common.Upsampler(conv, scale, n_feats, act=False),
             common.ECBUpsampler(conv, scale, n_feats, act=False, with_idt=with_idt),
-            # conv(n_feats, args.n_colors, kernel_size)
-            ECB(n_feats, args.n_colors, depth_multiplier=2.0, act_type='linear', with_idt=with_idt)
+            conv(n_feats, args.n_colors, kernel_size)
+            # ECB(n_feats, args.n_colors, depth_multiplier=2.0, act_type='linear')
         ]
 
         self.head = nn.Sequential(*m_head)
