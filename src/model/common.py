@@ -121,6 +121,44 @@ class MobileV1ResBlock(nn.Module):
 
         return res
 
+class GroupMobileV1ResBlock(nn.Module):
+    def __init__(
+        self, conv, n_feats, kernel_size,
+        bias=True, bn=False, act=nn.ReLU(True), res_scale=1):
+
+        super(GroupMobileV1ResBlock, self).__init__()
+        m = []
+
+        # -------------------------------
+        m.append(nn.Conv2d(n_feats, n_feats, kernel_size=3, padding=1, bias=bias, groups=2))
+        if bn:
+            m.append(nn.BatchNorm2d(n_feats))
+        m.append(act)
+
+        m.append(nn.Conv2d(n_feats, n_feats, kernel_size=1, padding=0, bias=bias, groups=1))
+        if bn:
+            m.append(nn.BatchNorm2d(n_feats))
+        m.append(act)
+
+        # -------------------------------
+        m.append(nn.Conv2d(n_feats, n_feats, kernel_size=3, padding=1, bias=bias, groups=2))
+        if bn:
+            m.append(nn.BatchNorm2d(n_feats))
+        m.append(act)
+
+        m.append(nn.Conv2d(n_feats, n_feats, kernel_size=1, padding=0, bias=bias, groups=1))
+        if bn:
+            m.append(nn.BatchNorm2d(n_feats))
+
+        self.body = nn.Sequential(*m)
+        self.res_scale = res_scale
+
+    def forward(self, x):
+        res = self.body(x).mul(self.res_scale)
+        res += x
+
+        return res
+
 class ECBResBlock(nn.Module):
     def __init__(
         self, conv, n_feats, kernel_size,
