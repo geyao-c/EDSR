@@ -60,6 +60,30 @@ class ResBlock(nn.Module):
 
         return res
 
+class GroupResBlock(nn.Module):
+    def __init__(
+        self, conv, n_feats, kernel_size,
+        bias=True, bn=False, act=nn.ReLU(True), res_scale=1):
+
+        super(GroupResBlock, self).__init__()
+        m = []
+        for i in range(2):
+            # m.append(conv(n_feats, n_feats, kernel_size, bias=bias))
+            m.append(nn.Conv2d(n_feats, n_feats, kernel_size=3, padding=1, bias=bias, groups=2))
+            if bn:
+                m.append(nn.BatchNorm2d(n_feats))
+            if i == 0:
+                m.append(act)
+
+        self.body = nn.Sequential(*m)
+        self.res_scale = res_scale
+
+    def forward(self, x):
+        res = self.body(x).mul(self.res_scale)
+        res += x
+
+        return res
+
 class ConvBNReLU(nn.Sequential):
     def __init__(self, in_planes: int, out_planes: int, kernel_size: int = 3, stride: int = 1, groups: int = 1,
                  dilation: int = 1):
