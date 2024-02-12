@@ -7,6 +7,20 @@ import torch.nn.functional as F
 # from model import ecb
 from model.ecb import ECB
 
+class Channel_Shuffle(nn.Module):
+    def __init__(self, num_groups):
+        super(Channel_Shuffle, self).__init__()
+        self.num_groups = num_groups
+
+    def forward(self, x: torch.FloatTensor):
+        batch_size, chs, h, w = x.shape
+        chs_per_group = chs // self.num_groups
+        x = torch.reshape(x, (batch_size, self.num_groups, chs_per_group, h, w))
+        # (batch_size, num_groups, chs_per_group, h, w)
+        x = x.transpose(1, 2)  # dim_1 and dim_2
+        out = torch.reshape(x, (batch_size, -1, h, w))
+        return out
+
 def default_conv(in_channels, out_channels, kernel_size, bias=True):
     return nn.Conv2d(
         in_channels, out_channels, kernel_size,
@@ -74,7 +88,7 @@ class GroupResBlock(nn.Module):
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
                 m.append(act)
-                m.append(nn.ChannelShuffle(groups))
+                m.append(Channel_Shuffle(groups))
 
         self.body = nn.Sequential(*m)
         self.res_scale = res_scale
