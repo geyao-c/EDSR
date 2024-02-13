@@ -87,7 +87,9 @@ class GroupResBlock(nn.Module):
             if bn:
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
+                m.append(Channel_Shuffle(groups))
                 m.append(act)
+            elif i == 1:
                 m.append(Channel_Shuffle(groups))
 
         self.body = nn.Sequential(*m)
