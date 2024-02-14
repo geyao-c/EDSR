@@ -1,5 +1,6 @@
 from model import common
-from model.ecb import ECB
+# from model.ecb import ECB
+from model.modifyecb import ECB
 
 import torch.nn as nn
 
@@ -16,7 +17,7 @@ def make_model(args, parent=False):
     return ECB_EDSR(args)
 
 class ECB_EDSR(nn.Module):
-    def __init__(self, args, conv=common.default_conv, with_idt=False):
+    def __init__(self, args, conv=common.default_conv, with_idt=False, bias_type=True):
         super(ECB_EDSR, self).__init__()
 
         n_resblocks = args.n_resblocks
@@ -25,6 +26,7 @@ class ECB_EDSR(nn.Module):
         scale = args.scale[0]
         act = nn.ReLU(True)
         with_idt = args.with_idt
+        bias_type = args.bias_type
 
         url_name = 'r{}f{}x{}'.format(n_resblocks, n_feats, scale)
         if url_name in url:
@@ -36,7 +38,7 @@ class ECB_EDSR(nn.Module):
 
         # define head module
         # m_head = [conv(args.n_colors, n_feats, kernel_size)]
-        m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear')]
+        m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', bias_type=bias_type)]
         # m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt)]
 
         # define body module
@@ -45,7 +47,7 @@ class ECB_EDSR(nn.Module):
             #     conv, n_feats, kernel_size, act=act, res_scale=args.res_scale
             # ) for _ in range(n_resblocks)
             common.ECBResBlock(
-                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale, with_idt=with_idt
+                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale, with_idt=with_idt, bias_type=bias_type
             )
             for _ in range(n_resblocks)
         ]
@@ -53,10 +55,10 @@ class ECB_EDSR(nn.Module):
 
         # define tail module
         m_tail = [
-            common.Upsampler(conv, scale, n_feats, act=False),
-            # common.ECBUpsampler(conv, scale, n_feats, act=False, with_idt=with_idt),
-            conv(n_feats, args.n_colors, kernel_size)
-            # ECB(n_feats, args.n_colors, depth_multiplier=2.0, act_type='linear')
+            # common.Upsampler(conv, scale, n_feats, act=False),
+            common.ECBUpsampler(conv, scale, n_feats, act=False, with_idt=with_idt, bias_type=bias_type),
+            # conv(n_feats, args.n_colors, kernel_size)
+            ECB(n_feats, args.n_colors, depth_multiplier=2.0, act_type='linear', bias_type=bias_type)
         ]
 
         self.head = nn.Sequential(*m_head)

@@ -69,6 +69,7 @@ parser.add_argument('--precision', type=str, default='single',
                     help='FP precision for test (single | half)')
 parser.add_argument('--with_idt', default=False,
                     help='ECB block residual')
+parser.add_argument('--bias_type', default=True, help='use bias or not')
 
 # Option for Residual dense network (RDN)
 parser.add_argument('--G0', type=int, default=64,
