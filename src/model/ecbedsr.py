@@ -17,7 +17,7 @@ def make_model(args, parent=False):
     return ECB_EDSR(args)
 
 class ECB_EDSR(nn.Module):
-    def __init__(self, args, conv=common.default_conv, with_idt=False, bias_type=True):
+    def __init__(self, args, conv=common.default_conv, with_idt=False, bias_type=True, group_num=1):
         super(ECB_EDSR, self).__init__()
 
         n_resblocks = args.n_resblocks
@@ -27,6 +27,7 @@ class ECB_EDSR(nn.Module):
         act = nn.ReLU(True)
         with_idt = args.with_idt
         bias_type = args.bias_type
+        group_num = args.group_num
 
         url_name = 'r{}f{}x{}'.format(n_resblocks, n_feats, scale)
         if url_name in url:
@@ -47,7 +48,7 @@ class ECB_EDSR(nn.Module):
             #     conv, n_feats, kernel_size, act=act, res_scale=args.res_scale
             # ) for _ in range(n_resblocks)
             common.ECBResBlock(
-                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale, with_idt=with_idt, bias_type=bias_type
+                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale, with_idt=with_idt, bias_type=bias_type, groups=group_num
             )
             for _ in range(n_resblocks)
         ]

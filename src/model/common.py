@@ -204,17 +204,23 @@ class GroupMobileV1ResBlock(nn.Module):
 class ECBResBlock(nn.Module):
     def __init__(
         self, conv, n_feats, kernel_size,
-        bias=True, bn=False, act=nn.ReLU(True), res_scale=1, with_idt=False, bias_type=True):
+        bias=True, bn=False, act=nn.ReLU(True), res_scale=1, with_idt=False, bias_type=True, groups=1):
 
         super(ECBResBlock, self).__init__()
         m = []
         for i in range(2):
             # m.append(conv(n_feats, n_feats, kernel_size, bias=bias))
-            m.append(ECB(n_feats, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt, bias_type=bias_type))
+            m.append(ECB(n_feats, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt, bias_type=bias_type,
+                         groups=groups))
             if bn:
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
+                if groups != 1:
+                    m.append(Channel_Shuffle(groups))
                 m.append(act)
+            elif i == 1:
+                if groups != 1:
+                    m.append(Channel_Shuffle(groups))
 
         self.body = nn.Sequential(*m)
         self.res_scale = res_scale
