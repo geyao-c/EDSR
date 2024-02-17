@@ -197,7 +197,8 @@ class SeqConv3x3(nn.Module):
 
 
 class ECB(nn.Module):
-    def __init__(self, inp_planes, out_planes, depth_multiplier, act_type='prelu', with_idt=False, bias_type=True, groups=1):
+    def __init__(self, inp_planes, out_planes, depth_multiplier, act_type='prelu', with_idt=False, bias_type=True,
+                 groups=1, num_conv_branches=1):
         super(ECB, self).__init__()
 
         self.depth_multiplier = depth_multiplier
@@ -206,13 +207,18 @@ class ECB(nn.Module):
         self.act_type = act_type
         self.bias_type = bias_type
         self.groups = groups
+        self.num_conv_branches = num_conv_branches
         
         if with_idt and (self.inp_planes == self.out_planes):
             self.with_idt = True
         else:
             self.with_idt = False
 
-        self.conv3x3 = torch.nn.Conv2d(self.inp_planes, self.out_planes, kernel_size=3, padding=1, bias=bias_type, groups=self.groups)
+        conv3x3_list = list()
+        for _ in range(self.num_conv_branches):
+            conv3x3_list.append(torch.nn.Conv2d(self.inp_planes, self.out_planes, kernel_size=3, padding=1, bias=bias_type, groups=self.groups))
+        self.conv3x3_list = nn.ModuleList(conv3x3_list)
+        # self.conv3x3 = torch.nn.Conv2d(self.inp_planes, self.out_planes, kernel_size=3, padding=1, bias=bias_type, groups=self.groups)
         self.conv1x1_3x3 = SeqConv3x3('conv1x1-conv3x3', self.inp_planes, self.out_planes, self.depth_multiplier, bias_type=bias_type, groups=self.groups)
         self.conv1x1_sbx = SeqConv3x3('conv1x1-sobelx', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
         self.conv1x1_sby = SeqConv3x3('conv1x1-sobely', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
@@ -233,11 +239,14 @@ class ECB(nn.Module):
 
     def forward(self, x):
         if self.training:
-            y = self.conv3x3(x)     + \
-                self.conv1x1_3x3(x) + \
+            y = self.conv1x1_3x3(x) + \
                 self.conv1x1_sbx(x) + \
                 self.conv1x1_sby(x) + \
                 self.conv1x1_lpl(x)
+
+            for i in range(self.num_conv_branches):
+                y += self.conv3x3_list[i](x)
+
             if self.with_idt:
                 y += x
         else:
@@ -248,7 +257,12 @@ class ECB(nn.Module):
         return y
 
     def rep_params(self):
-        K0, B0 = self.conv3x3.weight, self.conv3x3.bias
+        # K0, B0 = self.conv3x3.weight, self.conv3x3.bias
+        K0, B0 = 0, 0
+        for i in range(self.num_conv_branches):
+            K0 += self.conv3x3_list[i].weight
+            B0 += self.conv3x3_list[i].bias
+
         K1, B1 = self.conv1x1_3x3.rep_params()
         K2, B2 = self.conv1x1_sbx.rep_params()
         K3, B3 = self.conv1x1_sby.rep_params()
@@ -296,9 +310,11 @@ if __name__ == '__main__':
     # x = torch.randn(1, 3, 5, 5).cuda() * 200
     # x = torch.randn(1, 3, 5, 5) * 200
     # ecb = ECB(3, 3, 2, act_type='linear', with_idt=True).cuda()
-    ecb = ECB(16, 16, 2, act_type='linear', with_idt=False, bias_type=True, groups=groups)
+    ecb = ECB(16, 16, 2, act_type='linear', with_idt=False, bias_type=True, groups=groups, num_conv_branches=3)
     y0 = ecb(x)
 
     RK, RB = ecb.rep_params()
     y1 = F.conv2d(input=x, weight=RK, bias=RB, stride=1, padding=1, groups=groups)
     print(y0-y1)
+
+    print(ECB)

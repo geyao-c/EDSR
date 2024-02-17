@@ -28,6 +28,7 @@ class ECB_EDSR(nn.Module):
         with_idt = args.with_idt
         bias_type = args.bias_type
         group_num = args.group_num
+        num_conv_branches = args.num_conv_branches
 
         url_name = 'r{}f{}x{}'.format(n_resblocks, n_feats, scale)
         if url_name in url:
@@ -39,7 +40,7 @@ class ECB_EDSR(nn.Module):
 
         # define head module
         # m_head = [conv(args.n_colors, n_feats, kernel_size)]
-        m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', bias_type=bias_type)]
+        m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', bias_type=bias_type, num_conv_branches=num_conv_branches)]
         # m_head = [ECB(args.n_colors, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt)]
 
         # define body module
@@ -48,7 +49,8 @@ class ECB_EDSR(nn.Module):
             #     conv, n_feats, kernel_size, act=act, res_scale=args.res_scale
             # ) for _ in range(n_resblocks)
             common.ECBResBlock(
-                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale, with_idt=with_idt, bias_type=bias_type, groups=group_num
+                conv, n_feats, kernel_size, act=act, res_scale=args.res_scale, with_idt=with_idt, bias_type=bias_type,
+                groups=group_num, num_conv_branches=num_conv_branches
             )
             for _ in range(n_resblocks)
         ]
@@ -57,9 +59,9 @@ class ECB_EDSR(nn.Module):
         # define tail module
         m_tail = [
             # common.Upsampler(conv, scale, n_feats, act=False),
-            common.ECBUpsampler(conv, scale, n_feats, act=False, with_idt=with_idt, bias_type=bias_type),
+            common.ECBUpsampler(conv, scale, n_feats, act=False, with_idt=with_idt, bias_type=bias_type, num_conv_branches=num_conv_branches),
             # conv(n_feats, args.n_colors, kernel_size)
-            ECB(n_feats, args.n_colors, depth_multiplier=2.0, act_type='linear', bias_type=bias_type)
+            ECB(n_feats, args.n_colors, depth_multiplier=2.0, act_type='linear', bias_type=bias_type, num_conv_branches=num_conv_branches)
         ]
 
         self.head = nn.Sequential(*m_head)
