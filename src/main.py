@@ -23,12 +23,6 @@ def main():
         if checkpoint.ok:
             loader = data.Data(args)
             _model = model.Model(args, checkpoint)
-            print(_model)
-
-            for _, param in enumerate(_model.named_parameters()):
-                print(param[0])
-                print('----------------')
-
             _loss = loss.Loss(args, checkpoint) if not args.test_only else None
             t = Trainer(args, loader, _model, _loss, checkpoint)
             while not t.terminate():
