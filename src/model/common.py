@@ -6,7 +6,9 @@ import torch.nn.functional as F
 
 # from model import ecb
 # from model.ecb import ECB
+import model.se_module
 from model.modifyecb import ECB
+from model import se_module
 
 class Channel_Shuffle(nn.Module):
     def __init__(self, num_groups):
@@ -65,7 +67,7 @@ class ResBlock(nn.Module):
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
                 m.append(act)
-
+        m.append(se_module.SELayer(n_feats))
         self.body = nn.Sequential(*m)
         self.res_scale = res_scale
 
