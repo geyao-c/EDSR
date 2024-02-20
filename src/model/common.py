@@ -67,8 +67,8 @@ class ResBlock(nn.Module):
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
                 m.append(act)
-                m.append(se_module.SELayer(n_feats))
-        m.append(se_module.SELayer(n_feats))
+                # m.append(se_module.SELayer(n_feats))
+        # m.append(se_module.SELayer(n_feats))
         self.body = nn.Sequential(*m)
         self.res_scale = res_scale
 
