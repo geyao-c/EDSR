@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from thop import profile
 
 class SeqConv3x3(nn.Module):
     def __init__(self, seq_type, inp_planes, out_planes, depth_multiplier):
@@ -228,6 +229,10 @@ if __name__ == '__main__':
 
     # conv = SeqConv3x3('conv1x1-conv3x3', 3, 3, 2).cuda()
     conv = SeqConv3x3('conv1x1-conv3x3', 3, 3, 2)
+    flops, params = profile(conv, inputs=(x,), verbose=False)
+    print('model2 params is {}, flops is {}'.format(params, flops))
+
+
     y0 = conv(x)
     RK, RB = conv.rep_params()
     y1 = F.conv2d(input=x, weight=RK, bias=RB, stride=1, padding=1)

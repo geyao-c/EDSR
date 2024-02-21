@@ -29,7 +29,8 @@ python main.py --model EDSR --scale 2 --save edsr_x2 --n_resblocks 32 --n_feats 
 #python main.py --data_test Set5+Set14+B100+Urban100+DIV2K --data_range 801-900 --scale 4 --n_resblocks 32 --n_feats 256 --res_scale 0.1 --pre_train download --test_only --self_ensemble
 
 # Test your own images
-#python main.py --data_test Demo --scale 2 --pre_train ../model_pytorch/edsr_baseline_x2.pt --test_only --save_results
+# python main.py --data_test Demo --scale 2 --pre_train ../model_pytorch/edsr_baseline_x2.pt --test_only --save_results
+# python main.py --model DDBPN --data_test Demo --scale 2 --pre_train ../models/DBPN_x2.pth --test_only --save_results
 
 # Advanced - Test with JPEG images 
 #python main.py --model MDSR --data_test Demo --scale 2+3+4 --pre_train download --test_only --save_results

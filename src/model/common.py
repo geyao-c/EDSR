@@ -24,10 +24,10 @@ class Channel_Shuffle(nn.Module):
         out = torch.reshape(x, (batch_size, -1, h, w))
         return out
 
-def default_conv(in_channels, out_channels, kernel_size, bias=True):
+def default_conv(in_channels, out_channels, kernel_size, bias=True, groups=1):
     return nn.Conv2d(
         in_channels, out_channels, kernel_size,
-        padding=(kernel_size//2), bias=bias)
+        padding=(kernel_size//2), bias=bias, groups=groups)
 
 class MeanShift(nn.Conv2d):
     def __init__(
@@ -215,6 +215,36 @@ class ECBResBlock(nn.Module):
             # m.append(conv(n_feats, n_feats, kernel_size, bias=bias))
             m.append(ECB(n_feats, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt, bias_type=bias_type,
                          groups=groups, num_conv_branches=num_conv_branches))
+            if bn:
+                m.append(nn.BatchNorm2d(n_feats))
+            if i == 0:
+                if groups != 1:
+                    m.append(Channel_Shuffle(groups))
+                m.append(act)
+            elif i == 1:
+                if groups != 1:
+                    m.append(Channel_Shuffle(groups))
+
+        self.body = nn.Sequential(*m)
+        self.res_scale = res_scale
+
+    def forward(self, x):
+        res = self.body(x).mul(self.res_scale)
+        res += x
+
+        return res
+
+class PlainECBResBlock(nn.Module):
+    def __init__(
+        self, conv, n_feats, kernel_size,
+        bias=True, bn=False, act=nn.ReLU(True), res_scale=1, with_idt=False, bias_type=True, groups=1, num_conv_branches=1):
+
+        super(PlainECBResBlock, self).__init__()
+        m = []
+        for i in range(2):
+            m.append(conv(n_feats, n_feats, kernel_size, bias=bias, groups=groups))
+            # m.append(ECB(n_feats, n_feats, depth_multiplier=2.0, act_type='linear', with_idt=with_idt, bias_type=bias_type,
+            #              groups=groups, num_conv_branches=num_conv_branches))
             if bn:
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
