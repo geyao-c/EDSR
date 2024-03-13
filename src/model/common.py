@@ -219,11 +219,13 @@ class ECBResBlock(nn.Module):
                 m.append(nn.BatchNorm2d(n_feats))
             if i == 0:
                 if groups != 1:
-                    m.append(Channel_Shuffle(groups))
+                    # m.append(Channel_Shuffle(groups))
+                    pass
                 m.append(act)
             elif i == 1:
                 if groups != 1:
-                    m.append(Channel_Shuffle(groups))
+                    pass
+                    # m.append(Channel_Shuffle(groups))
 
         self.body = nn.Sequential(*m)
         self.res_scale = res_scale

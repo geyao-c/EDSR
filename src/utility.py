@@ -163,22 +163,32 @@ class checkpoint():
 
 def quantize(img, rgb_range):
     pixel_range = 255 / rgb_range
+    # print('pixel range is : ', pixel_range)
     return img.mul(pixel_range).clamp(0, 255).round().div(pixel_range)
 
 def calc_psnr(sr, hr, scale, rgb_range, dataset=None):
+    # print('sr shape is : ', sr.shape)
+    # print('hr shape is : ', hr.shape)
     if hr.nelement() == 1: return 0
 
     diff = (sr - hr) / rgb_range
+    # print('diff shape is : ', diff.shape)
     if dataset and dataset.dataset.benchmark:
+        # print('come here')
         shave = scale
+        # print('diff size 1 is : ', diff.size(1))
         if diff.size(1) > 1:
             gray_coeffs = [65.738, 129.057, 25.064]
             convert = diff.new_tensor(gray_coeffs).view(1, 3, 1, 1) / 256
+            # print('diff new shape is : ', diff.shape)
+            # print('convert shape is : ', convert.shape)
             diff = diff.mul(convert).sum(dim=1)
+            # print('diff now shape is : ', diff.shape)
     else:
         shave = scale + 6
 
     valid = diff[..., shave:-shave, shave:-shave]
+    # print('valid shape is : ', valid.shape)
     mse = valid.pow(2).mean()
 
     return -10 * math.log10(mse)

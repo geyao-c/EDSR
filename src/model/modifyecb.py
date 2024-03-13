@@ -219,10 +219,10 @@ class ECB(nn.Module):
             conv3x3_list.append(torch.nn.Conv2d(self.inp_planes, self.out_planes, kernel_size=3, padding=1, bias=bias_type, groups=self.groups))
         self.conv3x3_list = nn.ModuleList(conv3x3_list)
         # self.conv3x3 = torch.nn.Conv2d(self.inp_planes, self.out_planes, kernel_size=3, padding=1, bias=bias_type, groups=self.groups)
-        self.conv1x1_3x3 = SeqConv3x3('conv1x1-conv3x3', self.inp_planes, self.out_planes, self.depth_multiplier, bias_type=bias_type, groups=self.groups)
-        self.conv1x1_sbx = SeqConv3x3('conv1x1-sobelx', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
-        self.conv1x1_sby = SeqConv3x3('conv1x1-sobely', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
-        self.conv1x1_lpl = SeqConv3x3('conv1x1-laplacian', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
+        # self.conv1x1_3x3 = SeqConv3x3('conv1x1-conv3x3', self.inp_planes, self.out_planes, self.depth_multiplier, bias_type=bias_type, groups=self.groups)
+        # self.conv1x1_sbx = SeqConv3x3('conv1x1-sobelx', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
+        # self.conv1x1_sby = SeqConv3x3('conv1x1-sobely', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
+        # self.conv1x1_lpl = SeqConv3x3('conv1x1-laplacian', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
 
         if self.act_type == 'prelu':
             self.act = nn.PReLU(num_parameters=self.out_planes)
@@ -239,13 +239,16 @@ class ECB(nn.Module):
 
     def forward(self, x):
         if self.training:
-            y = self.conv1x1_3x3(x) + \
-                self.conv1x1_sbx(x) + \
-                self.conv1x1_sby(x) + \
-                self.conv1x1_lpl(x)
-
+            # y = self.conv1x1_3x3(x) + \
+            #     self.conv1x1_sbx(x) + \
+            #     self.conv1x1_sby(x) + \
+            #     self.conv1x1_lpl(x)
+            y = None
             for i in range(self.num_conv_branches):
-                y += self.conv3x3_list[i](x)
+                if y is None:
+                    y = self.conv3x3_list[i](x)
+                else:
+                    y += self.conv3x3_list[i](x)
 
             if self.with_idt:
                 y += x

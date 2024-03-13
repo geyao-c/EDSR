@@ -119,6 +119,7 @@ class SRData(data.Dataset):
         idx = self._get_index(idx)
         f_hr = self.images_hr[idx]
         f_lr = self.images_lr[self.idx_scale][idx]
+        print('load file f_hr is {} lr is {} : '.format(f_hr, f_lr))
 
         filename, _ = os.path.splitext(os.path.basename(f_hr))
         if self.args.ext == 'img' or self.benchmark:
@@ -130,6 +131,9 @@ class SRData(data.Dataset):
             with open(f_lr, 'rb') as _f:
                 lr = pickle.load(_f)
 
+        # print(type(f_hr))
+        # print('load file hr shape is : ', hr.shape)
+        # print('load file lr shape is : ', lr.shape)
         return lr, hr, filename
 
     def get_patch(self, lr, hr):

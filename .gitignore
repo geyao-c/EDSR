@@ -20,6 +20,14 @@ lib64/
 parts/
 sdist/
 var/
+model_pytorch/
+model_benchemark_results/ecb_edsr_x2_test/
+rdn_model/
+model_benchemark_results/
+pretrained_models/
+experiment/
+rcan_model/
+edsr-results/
 *.egg-info/
 .installed.cfg
 *.egg
