@@ -266,14 +266,16 @@ class ECB(nn.Module):
             K0 += self.conv3x3_list[i].weight
             B0 += self.conv3x3_list[i].bias
 
-        K1, B1 = self.conv1x1_3x3.rep_params()
-        K2, B2 = self.conv1x1_sbx.rep_params()
-        K3, B3 = self.conv1x1_sby.rep_params()
-        K4, B4 = self.conv1x1_lpl.rep_params()
+        # K1, B1 = self.conv1x1_3x3.rep_params()
+        # K2, B2 = self.conv1x1_sbx.rep_params()
+        # K3, B3 = self.conv1x1_sby.rep_params()
+        # K4, B4 = self.conv1x1_lpl.rep_params()
         if self.bias_type is True:
-            RK, RB = (K0+K1+K2+K3+K4), (B0+B1+B2+B3+B4)
+            # RK, RB = (K0+K1+K2+K3+K4), (B0+B1+B2+B3+B4)
+            RK, RB = K0, B0
         else:
-            RK, RB = (K0+K1+K2+K3+K4), None
+            # RK, RB = (K0+K1+K2+K3+K4), None
+            RK, RB = K0, None
 
         if self.with_idt:
             device = RK.get_device()
