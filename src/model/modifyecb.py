@@ -222,7 +222,7 @@ class ECB(nn.Module):
         self.conv1x1_3x3 = SeqConv3x3('conv1x1-conv3x3', self.inp_planes, self.out_planes, self.depth_multiplier, bias_type=bias_type, groups=self.groups)
         self.conv1x1_sbx = SeqConv3x3('conv1x1-sobelx', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
         self.conv1x1_sby = SeqConv3x3('conv1x1-sobely', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
-        self.conv1x1_lpl = SeqConv3x3('conv1x1-laplacian', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
+        # self.conv1x1_lpl = SeqConv3x3('conv1x1-laplacian', self.inp_planes, self.out_planes, -1, bias_type=bias_type, groups=self.groups)
 
         if self.act_type == 'prelu':
             self.act = nn.PReLU(num_parameters=self.out_planes)
@@ -241,8 +241,8 @@ class ECB(nn.Module):
         if self.training:
             y = self.conv1x1_3x3(x) + \
                 self.conv1x1_sbx(x) + \
-                self.conv1x1_sby(x) + \
-                self.conv1x1_lpl(x)
+                self.conv1x1_sby(x)
+                # self.conv1x1_lpl(x)
             # y = None
             for i in range(self.num_conv_branches):
                 if y is None:
@@ -269,12 +269,14 @@ class ECB(nn.Module):
         K1, B1 = self.conv1x1_3x3.rep_params()
         K2, B2 = self.conv1x1_sbx.rep_params()
         K3, B3 = self.conv1x1_sby.rep_params()
-        K4, B4 = self.conv1x1_lpl.rep_params()
+        # K4, B4 = self.conv1x1_lpl.rep_params()
         if self.bias_type is True:
-            RK, RB = (K0+K1+K2+K3+K4), (B0+B1+B2+B3+B4)
+            # RK, RB = (K0+K1+K2+K3+K4), (B0+B1+B2+B3+B4)
+            RK, RB = (K0+K1+K2+K3), (B0+B1+B2+B3)
             # RK, RB = K0, B0
         else:
-            RK, RB = (K0+K1+K2+K3+K4), None
+            # RK, RB = (K0+K1+K2+K3+K4), None
+            RK, RB = (K0+K1+K2+K3), None
             # RK, RB = K0, None
 
         if self.with_idt:
