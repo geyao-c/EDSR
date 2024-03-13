@@ -119,7 +119,7 @@ class SRData(data.Dataset):
         idx = self._get_index(idx)
         f_hr = self.images_hr[idx]
         f_lr = self.images_lr[self.idx_scale][idx]
-        print('load file f_hr is {} lr is {} : '.format(f_hr, f_lr))
+        # print('load file f_hr is {} lr is {} : '.format(f_hr, f_lr))
 
         filename, _ = os.path.splitext(os.path.basename(f_hr))
         if self.args.ext == 'img' or self.benchmark:
