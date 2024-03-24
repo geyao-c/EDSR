@@ -19,7 +19,7 @@ class EDSR(nn.Module):
         super(EDSR, self).__init__()
 
         n_resblocks = args.n_resblocks
-        n_feats = args.n_feats
+        n_feats = int(args.n_feats * args.pruning_ratio)
         kernel_size = 3 
         scale = args.scale[0]
         act = nn.ReLU(True)
@@ -35,6 +35,7 @@ class EDSR(nn.Module):
         m_head = [conv(args.n_colors, n_feats, kernel_size)]
 
         # define body module
+
         m_body = [
             common.ResBlock(
                 conv, n_feats, kernel_size, act=act, res_scale=args.res_scale
@@ -45,7 +46,7 @@ class EDSR(nn.Module):
         # define tail module
         m_tail = [
             common.Upsampler(conv, scale, n_feats, act=False),
-            conv(n_feats, args.n_colors, kernel_size)
+            conv(64, args.n_colors, kernel_size)
         ]
 
         self.head = nn.Sequential(*m_head)

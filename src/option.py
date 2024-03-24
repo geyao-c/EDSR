@@ -17,6 +17,8 @@ parser.add_argument('--n_GPUs', type=int, default=1,
                     help='number of GPUs')
 parser.add_argument('--seed', type=int, default=1,
                     help='random seed')
+parser.add_argument('--pruning_ratio', type=float, default=1.0,
+                    help='edsr pruning ratio')
 
 # Data specifications
 parser.add_argument('--dir_data', type=str, default='../../../dataset',
