@@ -132,8 +132,8 @@ def main():
         _model = model.Model(args, checkpoint)
         print(_model)
         args.pruning_ratio = 1.0
-        origin_model = get_baseline_model(args)
-        load_pruned_edsr(_model, origin_model.state_dict())
+        # origin_model = get_baseline_model(args)
+        # load_pruned_edsr(_model, origin_model.state_dict())
         _loss = loss.Loss(args, checkpoint) if not args.test_only else None
         t = Trainer(args, loader, _model, _loss, checkpoint)
         while not t.terminate():
